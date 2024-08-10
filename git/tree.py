@@ -62,10 +62,10 @@ class Tree(Object):
         return Tree(*object)
 
     @staticmethod
-    def from_path(current_path='.') -> 'Tree':
+    def from_path(pathname='.') -> 'Tree':
         entries = []
-        for filename in os.listdir(current_path):
-            filename = path.join(current_path, filename).removeprefix('./')
+        for filename in os.listdir(pathname):
+            filename = path.join(pathname, filename).removeprefix('./')
 
             if filename == '.git':
                 continue
