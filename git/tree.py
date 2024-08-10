@@ -8,6 +8,8 @@ from app.utils import read_until_zero
 from git.blob import Blob
 from git.object import Object
 
+TreeEntries = Iterable['TreeEntry']
+
 
 class TreeEntry(NamedTuple):
     mode: bytes
@@ -17,35 +19,45 @@ class TreeEntry(NamedTuple):
     @staticmethod
     def from_file(filename: str) -> 'TreeEntry':
         blob = Blob.from_file(filename)
-        basename = path.basename(path.normpath(filename))
+        basename = path.basename(filename)
         return TreeEntry(b'100644', basename.encode(), unhexlify(blob.sha))
 
     @staticmethod
     def from_tree(tree: 'Tree', pathname: str) -> 'TreeEntry':
-        basename = path.basename(path.normpath(pathname))
+        basename = path.basename(pathname)
         return TreeEntry(b'40000', basename.encode(), unhexlify(tree.sha))
 
     @staticmethod
-    def parse_one(stream: BytesIO) -> 'TreeEntry':
+    def one_from_stream(stream: BytesIO) -> 'TreeEntry':
         mode, name = read_until_zero(stream).split(b' ')
         sha = stream.read(20)
         return TreeEntry(mode, name, sha)
 
     @staticmethod
-    def parse_many(stream: BytesIO) -> tuple['TreeEntry', ...]:
-        entires = []
+    def many_from_stream(stream: BytesIO) -> TreeEntries:
         while True:
             try:
-                entry = TreeEntry.parse_one(stream)
-                entires.append(entry)
+                yield TreeEntry.one_from_stream(stream)
             except EOFError:
-                return tuple(entires)
+                return
+
+    @staticmethod
+    def many_from_path(pathname) -> TreeEntries:
+        for filename in os.listdir(pathname):
+            filename = path.join(pathname, filename).removeprefix('./')
+
+            if filename == '.git':
+                continue
+
+            if path.isdir(filename):
+                tree = Tree.from_path(filename)
+                yield TreeEntry.from_tree(tree, filename)
+
+            if path.isfile(filename):
+                yield TreeEntry.from_file(filename)
 
     def to_bytes(self):
         return self.mode + b' ' + self.name + b'\0' + self.sha
-
-
-TreeEntries = Iterable[TreeEntry]
 
 
 class Tree(Object):
@@ -63,22 +75,7 @@ class Tree(Object):
 
     @staticmethod
     def from_path(pathname='.') -> 'Tree':
-        entries = []
-        for filename in os.listdir(pathname):
-            filename = path.join(pathname, filename).removeprefix('./')
-
-            if filename == '.git':
-                continue
-
-            if path.isdir(filename):
-                tree = Tree.from_path(filename)
-                entry = TreeEntry.from_tree(tree, filename)
-
-            if path.isfile(filename):
-                entry = TreeEntry.from_file(filename)
-
-            entries.append(entry)
-
+        entries = TreeEntry.many_from_path(pathname)
         tree = Tree.from_entries(entries)
         tree.write()
         return tree
@@ -86,7 +83,7 @@ class Tree(Object):
     @property
     def entries(self) -> TreeEntries:
         content_stream = BytesIO(self.content)
-        return TreeEntry.parse_many(content_stream)
+        return TreeEntry.many_from_stream(content_stream)
 
     def print_entry_names(self):
         for e in self.entries:
