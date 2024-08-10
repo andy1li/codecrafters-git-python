@@ -1,5 +1,7 @@
 # Build your own Git (Python)
 
+![](https://backend.codecrafters.io/progress/git/98ecb67d-f6b6-4de5-81c4-00a4645d0651)
+
 https://app.codecrafters.io/courses/git/overview
 
 - ✅ 1. Initialize the .git directory 

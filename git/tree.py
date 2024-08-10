@@ -46,7 +46,7 @@ class TreeEntry(NamedTuple):
         for filename in os.listdir(pathname):
             filename = path.join(pathname, filename).removeprefix('./')
 
-            if filename == '.git':
+            if path.basename(filename) == '.git':
                 continue
 
             if path.isdir(filename):
