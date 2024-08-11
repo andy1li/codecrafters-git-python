@@ -43,4 +43,11 @@ def parse_arguments() -> Namespace:
     parser_commit_tree.add_argument('-p', dest='commit_sha')
     parser_commit_tree.add_argument('-m', dest='message')
 
+    parser_clone_tree = subparsers.add_parser(
+        'clone',
+        help='Create a new commit object',
+    )
+    parser_clone_tree.add_argument('repository')
+    parser_clone_tree.add_argument('directory')
+
     return parser.parse_args()

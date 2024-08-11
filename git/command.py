@@ -47,3 +47,6 @@ def execute_command():
             commit = Commit.from_args(args)
             commit.write()
             commit.print_sha()
+
+        case 'clone':
+            print(args)

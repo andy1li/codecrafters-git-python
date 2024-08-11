@@ -28,7 +28,7 @@ class TreeEntry(NamedTuple):
         return TreeEntry(b'40000', basename.encode(), unhexlify(tree.sha))
 
     @staticmethod
-    def one_from_stream(stream: BytesIO) -> 'TreeEntry':
+    def from_stream(stream: BytesIO) -> 'TreeEntry':
         mode, name = read_until_zero(stream).split(b' ')
         sha = stream.read(20)
         return TreeEntry(mode, name, sha)
@@ -37,7 +37,7 @@ class TreeEntry(NamedTuple):
     def many_from_stream(stream: BytesIO) -> TreeEntries:
         while True:
             try:
-                yield TreeEntry.one_from_stream(stream)
+                yield TreeEntry.from_stream(stream)
             except EOFError:
                 return
 
@@ -70,8 +70,7 @@ class Tree(Object):
     @staticmethod
     def from_path(pathname='.') -> 'Tree':
         entries = TreeEntry.many_from_path(pathname)
-        tree = Tree.from_entries(entries)
-        return tree
+        return Tree.from_entries(entries)
 
     @staticmethod
     def from_sha(sha: str) -> 'Tree':
