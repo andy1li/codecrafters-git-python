@@ -27,6 +27,9 @@ class Object(NamedTuple):
         object_bytes = self.to_bytes()
         return hash_bytes(object_bytes)
 
+    def print_sha(self):
+        print(self.sha, end='')
+
     def to_bytes(self) -> bytes:
         assert self.size == len(self.content)
         size_bytes = str(self.size).encode()

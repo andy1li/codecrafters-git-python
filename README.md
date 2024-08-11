@@ -9,6 +9,5 @@ https://app.codecrafters.io/courses/git/overview
 - ✅ 3. Create a blob object
 - ✅ 4. Read a tree object
 - ✅ 5. Write a tree object
-- ☑️ 6. Create a commit
+- ✅ 6. Create a commit
 - ☑️ 7. Clone a repository
-

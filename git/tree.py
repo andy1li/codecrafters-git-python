@@ -68,17 +68,16 @@ class Tree(Object):
         return Tree(b'tree', len(content), content)
 
     @staticmethod
+    def from_path(pathname='.') -> 'Tree':
+        entries = TreeEntry.many_from_path(pathname)
+        tree = Tree.from_entries(entries)
+        return tree
+
+    @staticmethod
     def from_sha(sha: str) -> 'Tree':
         object = Object.from_sha(sha)
         assert object.type == b'tree'
         return Tree(*object)
-
-    @staticmethod
-    def from_path(pathname='.') -> 'Tree':
-        entries = TreeEntry.many_from_path(pathname)
-        tree = Tree.from_entries(entries)
-        tree.write()
-        return tree
 
     @property
     def entries(self) -> TreeEntries:

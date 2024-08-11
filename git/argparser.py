@@ -35,4 +35,12 @@ def parse_arguments() -> Namespace:
         help='Create a tree object from the current index',
     )
 
+    parser_commit_tree = subparsers.add_parser(
+        'commit-tree',
+        help='Create a new commit object',
+    )
+    parser_commit_tree.add_argument('tree_sha')
+    parser_commit_tree.add_argument('-p', dest='commit_sha')
+    parser_commit_tree.add_argument('-m', dest='message')
+
     return parser.parse_args()
